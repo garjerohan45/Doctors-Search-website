@@ -150,3 +150,8 @@ REST_FRAMEWORK = {
         'user': '1000/hour'
     }
 }
+
+# ==================== AUTHENTICATION SETTINGS ====================
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
