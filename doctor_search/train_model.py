@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import LabelEncoder
 
 
@@ -135,29 +135,37 @@ def prepare_features_and_target(df):
 
 def train_model(X, y):
     """
-    Train Linear Regression model.
+    Train Random Forest Regressor model for better accuracy.
     
     Args:
         X (pd.DataFrame): Input features
         y (pd.Series): Target values
         
     Returns:
-        LinearRegression: Trained model
+        RandomForestRegressor: Trained model
     """
-    print(f"\n🤖 Training Linear Regression model...")
+    print(f"\n🤖 Training Random Forest Regressor model...")
     
-    model = LinearRegression()
+    model = RandomForestRegressor(
+        n_estimators=100,      # 100 trees
+        max_depth=15,          # Tree depth
+        min_samples_split=5,   # Samples to split
+        random_state=42,       # Reproducibility
+        n_jobs=-1              # Use all CPU cores
+    )
     model.fit(X, y)
     
     # Calculate training metrics
     train_score = model.score(X, y)
     
     print(f"✅ Model trained successfully!")
+    print(f"   Model: Random Forest Regressor")
+    print(f"   Trees: 100 | Max Depth: 15")
     print(f"   R² Score: {train_score:.4f}")
-    print(f"   Coefficients:")
-    print(f"   - specialty: {model.coef_[0]:.4f}")
-    print(f"   - experience_years: {model.coef_[1]:.4f}")
-    print(f"   - intercept: {model.intercept_:.4f}")
+    print(f"   Feature Importance:")
+    for idx, importance in enumerate(model.feature_importances_):
+        feature_name = ['specialty', 'experience_years'][idx]
+        print(f"   - {feature_name}: {importance:.4f}")
     
     return model
 
