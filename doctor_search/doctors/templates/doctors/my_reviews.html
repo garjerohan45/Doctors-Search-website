@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Reviews - Doctor Search{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .navbar-brand i {
+            margin-right: 10px;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        .reviews-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid #e74c3c;
+            transition: all 0.3s ease;
+        }
+
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+
+        .doctor-info {
+            flex: 1;
+        }
+
+        .doctor-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin: 0 0 5px 0;
+        }
+
+        .doctor-specialization {
+            font-size: 14px;
+            color: #666;
+            margin: 0;
+        }
+
+        .rating-stars {
+            display: inline-block;
+            font-size: 24px;
+            color: #ffc107;
+            letter-spacing: 2px;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .review-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 20px 0 10px 0;
+        }
+
+        .review-comment {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn-action {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #764ba2;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-delete:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            color: #666;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #999;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .btn-find-doctors {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-find-doctors:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .helpful-count {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        .stars {
+            display: inline-block;
+            font-size: 20px;
+            color: #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            .review-header {
+                flex-direction: column;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .review-actions {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-stethoscope"></i> Doctor Search</a>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'my_appointments' %}">Appointments</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="reviews-container">
+        <h1 class="page-title"><i class="fas fa-star"></i> My Reviews</h1>
+
+        <!-- Reviews List -->
+        {% if reviews %}
+            {% for review in reviews %}
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="doctor-info">
+                            <p class="doctor-name">Dr. {{ review.doctor.name }}</p>
+                            <p class="doctor-specialization">{{ review.doctor.specialization }}</p>
+                        </div>
+                        <div class="stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                            {% endfor %}
+                            <span style="color: #666; font-size: 16px; margin-left: 8px;">{{ review.rating }}/5</span>
+                        </div>
+                    </div>
+
+                    <p class="review-date">
+                        <i class="fas fa-calendar"></i> {{ review.created_at|date:"F d, Y" }}
+                        {% if review.created_at != review.updated_at %}
+                            <span style="color: #999;">(edited)</span>
+                        {% endif %}
+                    </p>
+
+                    <h3 class="review-title">{{ review.title }}</h3>
+
+                    <p class="review-comment">{{ review.comment }}</p>
+
+                    {% if review.helpful_count > 0 %}
+                        <div class="helpful-count">
+                            <i class="fas fa-thumbs-up"></i> {{ review.helpful_count }} found this helpful
+                        </div>
+                    {% endif %}
+
+                    <div class="review-actions">
+                        <a href="{% url 'write_review' review.doctor.id %}" class="btn-action btn-edit">
+                            <i class="fas fa-edit"></i> Edit Review
+                        </a>
+                        <a href="{% url 'write_review' review.doctor.id %}" class="btn-action btn-delete" onclick="return confirm('Delete this review?')">
+                            <i class="fas fa-trash"></i> Delete Review
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-pen-fancy"></i>
+                <h2>No Reviews Written</h2>
+                <p>Share your experience with doctors who have helped you</p>
+                <a href="{% url 'my_appointments' %}" class="btn-find-doctors">
+                    <i class="fas fa-calendar-check"></i> View My Appointments
+                </a>
+                <br><br>
+                <a href="{% url 'search' %}" class="btn-find-doctors" style="background: #e74c3c;">
+                    <i class="fas fa-search"></i> Find Doctors to Review
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

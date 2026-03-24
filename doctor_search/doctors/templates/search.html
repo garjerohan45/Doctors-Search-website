@@ -1,0 +1,408 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Search - Find Your Doctor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .search-form .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-form label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #333;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .search-form input {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .search-form input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-form button {
+            padding: 12px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .search-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-form button:active {
+            transform: translateY(0);
+        }
+
+        .results-header {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .doctor-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+        }
+
+        .doctor-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .doctor-card-header h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .doctor-card-specialization {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        .doctor-card-body {
+            padding: 20px;
+        }
+
+        .doctor-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .doctor-info:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-icon {
+            width: 30px;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            color: #667eea;
+            flex-shrink: 0;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: 500;
+            margin-top: 3px;
+        }
+
+        .contact-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .contact-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        a.contact-btn {
+            color: white;
+            text-decoration: none;
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            padding: 60px 20px;
+        }
+
+        .no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .no-results h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .no-results p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .result-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        /* Loading Indicator Styles */
+        .loading-container {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        /* Error Container Styles */
+        .error-container {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .error-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .error-text {
+            font-size: 1.1rem;
+        }
+
+        /* Results Container */
+        .results-container {
+            transition: opacity 0.3s ease;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .search-section {
+                padding: 20px;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+
+            .search-form button {
+                padding: 12px 20px;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .results-header {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .search-section {
+                padding: 15px;
+            }
+
+            .doctor-card-header h3 {
+                font-size: 1.2rem;
+            }
+
+            .info-label {
+                font-size: 0.75rem;
+            }
+
+            .info-value {
+                font-size: 1rem;
+            }
+
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border-width: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Doctor Search</h1>
+            <p>Find the best doctors near you</p>
+        </div>
+
+        <div class="search-section">
+            <form class="search-form">
+                <div class="form-group">
+                    <label for="name">Doctor Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter doctor name" value="">
+                </div>
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="Enter location" value="">
+                </div>
+                <div class="form-group">
+                    <label for="min_experience">Min. Experience (Years)</label>
+                    <input type="number" id="min_experience" name="min_experience" placeholder="0" value="" min="0">
+                </div>
+                <button type="submit">🔍 Search</button>
+            </form>
+        </div>
+
+        <div class="results-container">
+            <!-- Results will be dynamically inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <script src="{% static 'js/live_search.js' %}"></script>
+</body>
+</html>
