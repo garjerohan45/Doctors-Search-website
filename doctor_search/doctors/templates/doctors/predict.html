@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predict Doctor Rating - Doctor Search</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .predict-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 600px;
+            width: 100%;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .predict-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .predict-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .predict-header p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .predict-form {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+            display: block;
+        }
+
+        .form-control,
+        .form-select {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .btn-predict:active {
+            transform: translateY(0);
+        }
+
+        .prediction-result {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .prediction-result h3 {
+            color: #155724;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .predicted-rating {
+            color: #ffc107;
+            font-size: 48px;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+
+        .star-display {
+            font-size: 32px;
+            color: #ffc107;
+            margin: 15px 0;
+        }
+
+        .rating-text {
+            color: #155724;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #721c24;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #155724;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #004085;
+        }
+
+        .input-help {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link a:hover {
+            color: #764ba2;
+        }
+
+        @media (max-width: 480px) {
+            .predict-header {
+                padding: 30px 20px;
+            }
+
+            .predict-header h2 {
+                font-size: 22px;
+            }
+
+            .predict-form {
+                padding: 25px;
+            }
+
+            .btn-predict {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .predicted-rating {
+                font-size: 36px;
+            }
+
+            .star-display {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="predict-container">
+        <div class="predict-header">
+            <h2><i class="fas fa-robot"></i> ML Rating Predictor</h2>
+            <p>Predict doctor ratings based on specialty and experience</p>
+        </div>
+
+        <div class="predict-form">
+            <!-- Info Box -->
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <strong>How it works:</strong> Our ML model uses doctor specialty and years of experience to predict ratings. 
+                This is based on real data from 3,643+ Bangalore doctors.
+            </div>
+
+            <!-- Error Messages -->
+            {% if error %}
+                <div class="error-message">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="success-message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Prediction Form -->
+            <form method="POST" novalidate>
+                {% csrf_token %}
+
+                <!-- Specialty Selection -->
+                <div class="form-group">
+                    <label class="form-label" for="specialty">
+                        <i class="fas fa-stethoscope"></i> Medical Specialty
+                    </label>
+                    <select class="form-select" id="specialty" name="specialty" required>
+                        <option value="">-- Select a Specialty --</option>
+                        {% for value, label in specialties %}
+                            <option value="{{ value }}" {% if request.POST.specialty == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-help">Choose the doctor's medical specialty</div>
+                </div>
+
+                <!-- Experience Input -->
+                <div class="form-group">
+                    <label class="form-label" for="experience">
+                        <i class="fas fa-calendar"></i> Years of Experience
+                    </label>
+                    <input 
+                        type="number" 
+                        class="form-control" 
+                        id="experience" 
+                        name="experience" 
+                        min="0" 
+                        max="70" 
+                        placeholder="Enter years of experience"
+                        value="{{ request.POST.experience }}"
+                        required
+                    >
+                    <div class="input-help">Enter years of practice (0-70)</div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-predict">
+                    <i class="fas fa-sparkles"></i> Predict Rating
+                </button>
+            </form>
+
+            <!-- Prediction Result -->
+            {% if prediction %}
+                <div class="prediction-result">
+                    <h3>📊 Predicted Rating</h3>
+                    
+                    <div class="star-display">
+                        {% for i in "12345" %}
+                            {% if i|add:"0" <= prediction %}
+                                ★
+                            {% elif i|add:"0" <= prediction|add:"1" %}
+                                ⭐
+                            {% else %}
+                                ☆
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="predicted-rating">{{ prediction }}/5.0</div>
+                    
+                    <div class="rating-text">
+                        {% if prediction >= 4.5 %}
+                            ✨ Excellent - Highly Rated Doctor
+                        {% elif prediction >= 4 %}
+                            👍 Very Good - Well Rated
+                        {% elif prediction >= 3 %}
+                            ⭐ Good - Average Rating
+                        {% elif prediction >= 2 %}
+                            ⚠️ Fair - Below Average
+                        {% else %}
+                            ❌ Poor - Low Rating
+                        {% endif %}
+                    </div>
+
+                    {% if request.POST.specialty and request.POST.experience %}
+                        <div style="margin-top: 15px; font-size: 13px; color: #155724;">
+                            <p>
+                                Doctor with <strong>{{ request.POST.experience }} years</strong> of experience
+                                in <strong>{{ request.POST.specialty|title }}</strong>
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Back Link -->
+            <div class="back-link">
+                <a href="{% url 'home' %}"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

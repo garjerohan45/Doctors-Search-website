@@ -219,7 +219,7 @@
             <div class="appointment-details">
                 <div class="detail-group">
                     <span class="detail-label">👤 Patient Name</span>
-                    <span class="detail-value">{{ appointment.patient_name }}</span>
+                    <span class="detail-value">{{ appointment.patient.get_full_name|default:appointment.patient.username }}</span>
                 </div>
 
                 <div class="detail-group">

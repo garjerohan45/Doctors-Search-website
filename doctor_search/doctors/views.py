@@ -278,6 +278,8 @@ def search_doctors(request):
     return render(request, 'search.html', context)
 
 
+@login_required(login_url='login')
+@require_http_methods(["GET", "POST"])
 def book_appointment(request, doctor_id=None):
     """Book an appointment with a doctor."""
     doctor = None
@@ -293,12 +295,24 @@ def book_appointment(request, doctor_id=None):
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
-            appointment = form.save()
-            messages.success(
-                request,
-                f"Appointment booked successfully with Dr. {appointment.doctor.name} on {appointment.date}!"
-            )
-            return redirect('appointment_confirmation', appointment_id=appointment.id)
+            try:
+                # Save the form but don't commit to DB yet
+                appointment = form.save(commit=False)
+                # Set the patient to the logged-in user (already authenticated)
+                appointment.patient = request.user
+                # Now save to database
+                appointment.save()
+                messages.success(
+                    request,
+                    f"✅ Appointment booked successfully with Dr. {appointment.doctor.name} on {appointment.date}!"
+                )
+                return redirect('appointment_confirmation', appointment_id=appointment.id)
+            except Exception as e:
+                messages.error(request, f'❌ Error booking appointment: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{error}')
     else:
         initial_data = {}
         if doctor:
@@ -326,3 +340,103 @@ def appointment_confirmation(request, appointment_id):
     }
     
     return render(request, 'confirmation.html', context)
+
+
+# ==================== ML PREDICTION ====================
+
+@require_http_methods(["GET", "POST"])
+def predict_doctor_rating(request):
+    """
+    Predict doctor rating based on specialty and experience using ML model.
+    """
+    import pickle
+    import os
+    
+    prediction = None
+    error = None
+    specialties_list = [
+        ('anesthesiologist', 'Anesthesiologist'),
+        ('ayurveda', 'Ayurveda'),
+        ('cardiac-surgeon', 'Cardiac Surgeon'),
+        ('cardiologist', 'Cardiologist'),
+        ('dentist', 'Dentist'),
+        ('dermatologist', 'Dermatologist'),
+        ('endocrinologist', 'Endocrinologist'),
+        ('gastroenterologist', 'Gastroenterologist'),
+        ('general-physician', 'General Physician'),
+        ('gynecologist', 'Gynecologist'),
+        ('nephrologist', 'Nephrologist'),
+        ('neurologist', 'Neurologist'),
+        ('neurosurgeon', 'Neurosurgeon'),
+        ('oncologist', 'Oncologist'),
+        ('ophthalmologist', 'Ophthalmologist'),
+        ('orthopedist', 'Orthopedist'),
+        ('pathologist', 'Pathologist'),
+        ('pediatrician', 'Pediatrician'),
+        ('plastic-surgeon', 'Plastic Surgeon'),
+        ('psychiatrist', 'Psychiatrist'),
+        ('pulmonologist', 'Pulmonologist'),
+        ('radiologist', 'Radiologist'),
+        ('rheumatologist', 'Rheumatologist'),
+        ('sexologist', 'Sexologist'),
+        ('surgeon', 'Surgeon'),
+        ('trichologist', 'Trichologist'),
+        ('unani', 'Unani'),
+        ('urologist', 'Urologist'),
+        ('vascular-surgeon', 'Vascular Surgeon'),
+    ]
+    
+    if request.method == 'POST':
+        try:
+            specialty = request.POST.get('specialty', '').strip()
+            experience = request.POST.get('experience', '').strip()
+            
+            if not specialty or not experience:
+                error = '❌ Please fill in all fields'
+            else:
+                try:
+                    experience = int(experience)
+                    if experience < 0 or experience > 70:
+                        error = '❌ Experience should be between 0 and 70 years'
+                    else:
+                        # Load model and encoder
+                        model_path = r'D:\Projects\Doctors Search website\models\model.pkl'
+                        encoder_path = r'D:\Projects\Doctors Search website\models\encoder.pkl'
+                        
+                        if not os.path.exists(model_path) or not os.path.exists(encoder_path):
+                            error = '❌ Model files not found. Please train the model first.'
+                        else:
+                            with open(model_path, 'rb') as f:
+                                model = pickle.load(f)
+                            with open(encoder_path, 'rb') as f:
+                                encoder = pickle.load(f)
+                            
+                            # Encode specialty
+                            try:
+                                specialty_encoded = encoder.transform([specialty])[0]
+                            except ValueError:
+                                error = f'❌ Unknown specialty: {specialty}'
+                                specialty_encoded = None
+                            
+                            if specialty_encoded is not None:
+                                # Make prediction
+                                predicted_rating = model.predict([[specialty_encoded, experience]])[0]
+                                
+                                # Ensure rating is between 1 and 5
+                                predicted_rating = max(1.0, min(5.0, predicted_rating))
+                                prediction = round(predicted_rating, 2)
+                                messages.success(request, f'✅ Rating predicted: {prediction}')
+                
+                except ValueError:
+                    error = '❌ Experience must be a valid number'
+        except Exception as e:
+            error = f'❌ Error: {str(e)}'
+    
+    context = {
+        'prediction': prediction,
+        'error': error,
+        'specialties': specialties_list,
+        'page_title': 'Predict Doctor Rating',
+    }
+    
+    return render(request, 'doctors/predict.html', context)

@@ -25,7 +25,5 @@ urlpatterns = [
     path('confirmation/<int:appointment_id>/', views.appointment_confirmation, name='appointment_confirmation'),
     
     # ==================== ML PREDICTION ====================
-    # Uncomment if ml_views.py exists
-    # path('predict/', doctor_rating_predictor, name='predict'),
-    # path('api/predict/', api_predict_rating, name='api_predict'),
+    path('predict/', views.predict_doctor_rating, name='predict'),
 ]
